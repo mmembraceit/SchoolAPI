@@ -1,0 +1,6 @@
+@StudentApi.Api_HostAddress = http://localhost:5004
+
+GET {{StudentApi.Api_HostAddress}}/health
+Accept: application/json
+
+###
