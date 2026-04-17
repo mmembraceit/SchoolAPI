@@ -5,8 +5,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddOpenApi();
+var connectionString = builder.Configuration.GetConnectionString("StudentApiDb")
+    ?? throw new InvalidOperationException("Connection string 'StudentApiDb' was not found.");
+
 builder.Services.AddDbContext<StudentApiDbContext>(options =>
-    options.UseInMemoryDatabase("StudentApiDb"));
+    options.UseSqlServer(connectionString));
 
 var app = builder.Build();
 
