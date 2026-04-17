@@ -1,15 +1,10 @@
-using Microsoft.EntityFrameworkCore;
-using StudentApi.Infrastructure.Data;
+using StudentApi.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddOpenApi();
-var connectionString = builder.Configuration.GetConnectionString("StudentApiDb")
-    ?? throw new InvalidOperationException("Connection string 'StudentApiDb' was not found.");
-
-builder.Services.AddDbContext<StudentApiDbContext>(options =>
-    options.UseSqlServer(connectionString));
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
