@@ -15,15 +15,12 @@ public abstract class BaseMap<T> : IEntityTypeConfiguration<T> where T : BaseEnt
             .IsRequired();
         
         entity.Property(e => e.CreatedAt)
-            .HasDefaultValueSql("created_at")
             .IsRequired();
 
         entity.Property(e => e.UpdatedAt)
-            .HasDefaultValueSql("updated_at")
             .IsRequired();
 
-         entity.Property(e => e.DeletedAt)
-            .HasDefaultValueSql("deleted_at")
+        entity.Property(e => e.DeletedAt)
             .IsRequired(false);
 
         entity.HasQueryFilter(e => e.DeletedAt == null);
