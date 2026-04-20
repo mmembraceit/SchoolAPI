@@ -1,13 +1,14 @@
+using StudentApi.Api.Endpoints;
+using StudentApi.Application.DependencyInjection;
 using StudentApi.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddOpenApi();
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
-
 
 if (app.Environment.IsDevelopment())
 {
@@ -17,5 +18,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+app.MapStudentEndpoints();
+app.MapTenantEndpoints();
 
 app.Run();
