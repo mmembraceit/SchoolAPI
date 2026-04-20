@@ -12,6 +12,9 @@ public class StudentEntityMap : BaseMap<StudentEntity>
 
         entity.ToTable("students");
 
+        entity.Property(e => e.TenantId)
+            .IsRequired();
+
         entity.Property(e => e.Name)
             .HasMaxLength(255)
             .IsRequired();

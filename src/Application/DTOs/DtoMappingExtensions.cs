@@ -11,6 +11,7 @@ public static class DtoMappingExtensions
     public static StudentResponse ToResponse(this StudentModel model) =>
         new(
             model.Entity.Id,
+            model.Entity.TenantId,
             model.Entity.Name,
             model.Entity.DateOfBirth,
             model.Entity.CreatedAt,
@@ -18,7 +19,7 @@ public static class DtoMappingExtensions
             model.Entity.IsDeleted);
 
     public static StudentModel ToModel(this StudentCreateRequest request) =>
-        StudentModel.Create(request.Name, request.DateOfBirth);
+        StudentModel.Create(request.TenantId, request.Name, request.DateOfBirth);
 
     public static void ApplyTo(this StudentUpdateRequest request, StudentModel model)
     {
