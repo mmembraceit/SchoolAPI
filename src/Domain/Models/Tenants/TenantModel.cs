@@ -13,11 +13,14 @@ public class TenantModel
 
     private TenantModel(string name, string? description)
     {
+        var now = DateTimeOffset.UtcNow;
         Entity = new TenantEntity
         {
             Id = Guid.NewGuid(),
             Name = name,
-            Description = description
+            Description = description,
+            CreatedAt = now,
+            UpdatedAt = now
         };
     }
 

@@ -13,11 +13,14 @@ public class StudentModel
 
     private StudentModel(string name, DateOnly dateOfBirth)
     {
+        var now = DateTimeOffset.UtcNow;
         Entity = new StudentEntity
         {
             Id = Guid.NewGuid(),
             Name = name,
-            DateOfBirth = dateOfBirth
+            DateOfBirth = dateOfBirth,
+            CreatedAt = now,
+            UpdatedAt = now
         };
     }
 
