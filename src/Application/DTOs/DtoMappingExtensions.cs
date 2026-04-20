@@ -24,6 +24,7 @@ public static class DtoMappingExtensions
     {
         model.Entity.Name = request.Name;
         model.Entity.DateOfBirth = request.DateOfBirth;
+        model.Entity.UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     // Tenant mappings
@@ -43,5 +44,6 @@ public static class DtoMappingExtensions
     {
         model.Entity.Name = request.Name;
         model.Entity.Description = request.Description;
+        model.Entity.UpdatedAt = DateTimeOffset.UtcNow;
     }
 }
