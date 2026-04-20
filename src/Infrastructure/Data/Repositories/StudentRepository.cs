@@ -16,13 +16,13 @@ public class StudentRepository(StudentApiDbContext dbContext) : IStudentReposito
         return entity is null ? null : StudentModel.FromEntity(entity);
     }
 
-    public async Task<IEnumerable<StudentModel>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<StudentModel>> GetAllAsync(CancellationToken cancellationToken)
     {
         var entities = await dbContext.Students
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        return entities.Select(StudentModel.FromEntity);
+        return entities.Select(StudentModel.FromEntity).ToList();
     }
 
     public async Task AddAsync(StudentModel student, CancellationToken cancellationToken)
@@ -44,7 +44,7 @@ public class StudentRepository(StudentApiDbContext dbContext) : IStudentReposito
         {
             return;
         }
-        
+
         entity.MarkAsDeleted();
         await dbContext.SaveChangesAsync(cancellationToken);
     }

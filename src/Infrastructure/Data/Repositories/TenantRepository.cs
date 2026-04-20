@@ -14,13 +14,13 @@ public class TenantRepository(StudentApiDbContext dbContext) : ITenantRepository
         return entity is null ? null : TenantModel.FromEntity(entity);
     }
 
-    public async Task<IEnumerable<TenantModel>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<TenantModel>> GetAllAsync(CancellationToken cancellationToken)
     {
         var entities = await dbContext.Tenants
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        return entities.Select(TenantModel.FromEntity);
+        return entities.Select(TenantModel.FromEntity).ToList();
     }
 
     public async Task AddAsync(TenantModel tenant, CancellationToken cancellationToken)
