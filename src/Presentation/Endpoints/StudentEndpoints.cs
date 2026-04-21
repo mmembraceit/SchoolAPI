@@ -18,7 +18,7 @@ public static class StudentEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IStudentService service, CancellationToken ct) =>
         {
             var result = await service.GetByIdAsync(id, ct);
-            return result is not null ? Results.Ok(result) : Results.NotFound();
+            return Results.Ok(result);
         });
 
         group.MapPost("/", async (StudentCreateRequest request, IStudentService service, CancellationToken ct) =>
@@ -30,13 +30,13 @@ public static class StudentEndpoints
         group.MapPut("/{id:guid}", async (Guid id, StudentUpdateRequest request, IStudentService service, CancellationToken ct) =>
         {
             var result = await service.UpdateAsync(id, request, ct);
-            return result is not null ? Results.Ok(result) : Results.NotFound();
+            return Results.Ok(result);
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IStudentService service, CancellationToken ct) =>
         {
-            var deleted = await service.DeleteAsync(id, ct);
-            return deleted ? Results.NoContent() : Results.NotFound();
+            await service.DeleteAsync(id, ct);
+            return Results.NoContent();
         });
 
         return app;

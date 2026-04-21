@@ -9,7 +9,7 @@ public static class TenantEndpoints
     {
         var group = app.MapGroup("/api/tenants").WithTags("Tenants");
 
-        group.MapGet("/", async (ITenantService service, CancellationToken ct) => 
+        group.MapGet("/", async (ITenantService service, CancellationToken ct) =>
         {
             var result = await service.GetAllAsync(ct);
             return Results.Ok(result);
@@ -18,7 +18,7 @@ public static class TenantEndpoints
         group.MapGet("/{id:guid}", async (Guid id, ITenantService service, CancellationToken ct) =>
         {
             var result = await service.GetByIdAsync(id, ct);
-            return result is not null ? Results.Ok(result) : Results.NotFound();
+            return Results.Ok(result);
         });
 
         group.MapPost("/", async (TenantCreateRequest request, ITenantService service, CancellationToken ct) =>
@@ -30,13 +30,13 @@ public static class TenantEndpoints
         group.MapPut("/{id:guid}", async (Guid id, TenantUpdateRequest request, ITenantService service, CancellationToken ct) =>
         {
             var result = await service.UpdateAsync(id, request, ct);
-            return result is not null ? Results.Ok(result) : Results.NotFound();
+            return Results.Ok(result);
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, ITenantService service, CancellationToken ct) =>
         {
-            var deleted = await service.DeleteAsync(id, ct);
-            return deleted ? Results.NoContent() : Results.NotFound();
+            await service.DeleteAsync(id, ct);
+            return Results.NoContent();
         });
 
         return app;
