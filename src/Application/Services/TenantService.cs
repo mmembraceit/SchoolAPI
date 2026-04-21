@@ -1,6 +1,8 @@
 using StudentApi.Application.DTOs;
 using StudentApi.Application.DTOs.Tenants;
 using StudentApi.Application.Repositories;
+using StudentApi.Domain.ErrorCodes;
+using StudentApi.Domain.Exceptions;
 
 namespace StudentApi.Application.Services;
 
@@ -13,10 +15,11 @@ public class TenantService : ITenantService
         _repository = repository;
     }
 
-    public async Task<TenantResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<TenantResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var tenant = await _repository.GetByIdAsync(id, cancellationToken);
-        return tenant?.ToResponse();
+        var tenant = await _repository.GetByIdAsync(id, cancellationToken)
+            ?? throw new NotFoundException(StudentApiErrorCodes.Tenant.NotFound, $"Tenant '{id}' was not found.");
+        return tenant.ToResponse();
     }
 
     public async Task<IEnumerable<TenantResponse>> GetAllAsync(CancellationToken cancellationToken)
@@ -27,27 +30,29 @@ public class TenantService : ITenantService
 
     public async Task<TenantResponse> CreateAsync(TenantCreateRequest request, CancellationToken cancellationToken)
     {
+        if (await _repository.ExistsWithNameAsync(request.Name, cancellationToken))
+            throw new ConflictException(StudentApiErrorCodes.Tenant.NameAlreadyExists, $"A tenant with name '{request.Name}' already exists.");
+
         var model = request.ToModel();
         await _repository.AddAsync(model, cancellationToken);
         return model.ToResponse();
     }
 
-    public async Task<TenantResponse?> UpdateAsync(Guid id, TenantUpdateRequest request, CancellationToken cancellationToken)
+    public async Task<TenantResponse> UpdateAsync(Guid id, TenantUpdateRequest request, CancellationToken cancellationToken)
     {
-        var tenant = await _repository.GetByIdAsync(id, cancellationToken);
-        if (tenant is null) return null;
+        var tenant = await _repository.GetByIdAsync(id, cancellationToken)
+            ?? throw new NotFoundException(StudentApiErrorCodes.Tenant.NotFound, $"Tenant '{id}' was not found.");
 
         request.ApplyTo(tenant);
         await _repository.UpdateAsync(tenant, cancellationToken);
         return tenant.ToResponse();
     }
 
-    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        var tenant = await _repository.GetByIdAsync(id, cancellationToken);
-        if (tenant is null) return false;
+        var tenant = await _repository.GetByIdAsync(id, cancellationToken)
+            ?? throw new NotFoundException(StudentApiErrorCodes.Tenant.NotFound, $"Tenant '{id}' was not found.");
 
-        await _repository.DeleteAsync(id, cancellationToken);
-        return true;
+        await _repository.DeleteAsync(tenant.Entity.Id, cancellationToken);
     }
 }
