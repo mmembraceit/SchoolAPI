@@ -23,6 +23,11 @@ public class TenantRepository(StudentApiDbContext dbContext) : ITenantRepository
         return entities.Select(TenantModel.FromEntity).ToList();
     }
 
+    public async Task<bool> ExistsWithNameAsync(string name, CancellationToken cancellationToken)
+    {
+        return await dbContext.Tenants.AnyAsync(t => t.Name == name, cancellationToken);
+    }
+
     public async Task AddAsync(TenantModel tenant, CancellationToken cancellationToken)
     {
         await dbContext.Tenants.AddAsync(tenant.Entity, cancellationToken);
