@@ -6,6 +6,7 @@ public interface ITenantRepository
 {
     Task<TenantModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     Task<IReadOnlyList<TenantModel>> GetAllAsync(CancellationToken cancellationToken);
+    Task<bool> ExistsWithNameAsync(string name, CancellationToken cancellationToken);
     Task AddAsync(TenantModel tenant, CancellationToken cancellationToken);
     Task UpdateAsync(TenantModel tenant, CancellationToken cancellationToken);
     Task DeleteAsync(Guid id, CancellationToken cancellationToken);
