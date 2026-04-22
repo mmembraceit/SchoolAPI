@@ -22,10 +22,10 @@ public class StudentService : IStudentService
         return student.ToResponse();
     }
 
-    public async Task<IEnumerable<StudentResponse>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<StudentResponse>> GetAllAsync(CancellationToken cancellationToken)
     {
         var students = await _repository.GetAllAsync(cancellationToken);
-        return students.Select(s => s.ToResponse());
+        return students.Select(s => s.ToResponse()).ToList();
     }
 
     public async Task<StudentResponse> CreateAsync(StudentCreateRequest request, CancellationToken cancellationToken)

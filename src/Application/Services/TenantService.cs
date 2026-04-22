@@ -22,10 +22,10 @@ public class TenantService : ITenantService
         return tenant.ToResponse();
     }
 
-    public async Task<IEnumerable<TenantResponse>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<TenantResponse>> GetAllAsync(CancellationToken cancellationToken)
     {
         var tenants = await _repository.GetAllAsync(cancellationToken);
-        return tenants.Select(t => t.ToResponse());
+        return tenants.Select(t => t.ToResponse()).ToList();
     }
 
     public async Task<TenantResponse> CreateAsync(TenantCreateRequest request, CancellationToken cancellationToken)
