@@ -8,7 +8,7 @@ public static class StudentEndpoints
 {
     public static WebApplication MapStudentEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/api/students").WithTags("Students");
+        var group = app.MapGroup("/api/students").WithTags("Students").RequireAuthorization();
 
         group.MapGet("/", async (IStudentService service, CancellationToken ct) =>
         {

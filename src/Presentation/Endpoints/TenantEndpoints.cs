@@ -8,7 +8,7 @@ public static class TenantEndpoints
 {
     public static WebApplication MapTenantEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/api/tenants").WithTags("Tenants");
+        var group = app.MapGroup("/api/tenants").WithTags("Tenants").RequireAuthorization();
 
         group.MapGet("/", async (ITenantService service, CancellationToken ct) =>
         {
