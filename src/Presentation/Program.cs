@@ -5,6 +5,7 @@ using StudentApi.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Services
 builder.Services.AddOpenApi();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -16,9 +17,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
 app.UseHttpsRedirection();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+
 app.MapStudentEndpoints();
 app.MapTenantEndpoints();
 
