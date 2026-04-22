@@ -22,6 +22,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
       ConnectionStrings__StudentApiDb: "Server=db,1433;Database=StudentApiDb;User Id=sa;Password=SchoolApi@2026;TrustServerCertificate=True;"
+      Jwt__SecretKey: "${JWT_SECRET_KEY}"
     depends_on:
       db:
         condition: service_healthy
