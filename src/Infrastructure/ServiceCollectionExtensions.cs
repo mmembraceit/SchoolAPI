@@ -5,7 +5,7 @@ using StudentApi.Application.Repositories;
 using StudentApi.Infrastructure.Data;
 using StudentApi.Infrastructure.Repositories;
 
-namespace StudentApi.Infrastructure.DependencyInjection;
+namespace StudentApi.Infrastructure;
 
 public static class ServiceCollectionExtensions
 {

@@ -1,7 +1,7 @@
 using StudentApi.Api.Endpoints;
 using StudentApi.Api.Middleware;
-using StudentApi.Application.DependencyInjection;
-using StudentApi.Infrastructure.DependencyInjection;
+using StudentApi.Application;
+using StudentApi.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +16,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));

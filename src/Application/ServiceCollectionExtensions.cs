@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using StudentApi.Application.Services;
 
-namespace StudentApi.Application.DependencyInjection;
+namespace StudentApi.Application;
 
 public static class ServiceCollectionExtensions
 {
