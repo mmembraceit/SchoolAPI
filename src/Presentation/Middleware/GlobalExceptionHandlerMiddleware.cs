@@ -1,13 +1,9 @@
-using System.Net;
-using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StudentApi.Domain.ErrorCodes;
+using StudentApi.Api.Models;
 using StudentApi.Domain.Exceptions;
 
 namespace StudentApi.Api.Middleware;
 
-internal sealed class GlobalExceptionHandlerMiddleware (
+internal sealed class GlobalExceptionHandlerMiddleware(
     RequestDelegate next,
     ILogger<GlobalExceptionHandlerMiddleware> logger)
 {
@@ -17,25 +13,23 @@ internal sealed class GlobalExceptionHandlerMiddleware (
         {
             await next(context);
         }
+        catch (ApiException ex)
+        {
+            logger.LogWarning(ex, "Domain exception occurred: {ErrorCode}", ex.ErrorCode);
+
+            context.Response.StatusCode = (int)ex.StatusCode;
+
+            await context.Response.WriteAsJsonAsync(
+                ApiResponse<object>.Fail(ex.Message));
+        }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unhandled exception ocurred");
+            logger.LogError(ex, "Unhandled exception occurred");
 
-            context.Response.StatusCode = ex switch
-            {
-                ApplicationException 
-                => StatusCodes.Status400BadRequest,
-                _ => StatusCodes.Status500InternalServerError
-            };
-            
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
             await context.Response.WriteAsJsonAsync(
-                new ProblemDetails
-                {
-                    Type = ex.GetType().Name,
-                    Title = "An error occured",
-                    Detail = ex.Message,
-                }
-            );  
-        }
+                ApiResponse<object>.Fail("An unexpected error occurred."));
         }
     }
+}
