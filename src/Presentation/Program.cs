@@ -1,7 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using StudentApi.Api.Endpoints;
 using StudentApi.Api.Middleware;
 using StudentApi.Application;
 using StudentApi.Infrastructure;
+using StudentApi.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +19,16 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<StudentApiDbContext>();
+    db.Database.Migrate();
+}
+
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsEnvironment("Docker"))
+    app.UseHttpsRedirection();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
