@@ -1,3 +1,5 @@
+using System.Reflection;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using StudentApi.Application.Services;
 
@@ -9,6 +11,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IStudentService, StudentService>();
         services.AddScoped<ITenantService, TenantService>();
+
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         return services;
     }
