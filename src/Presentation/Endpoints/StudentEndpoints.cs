@@ -1,3 +1,4 @@
+using StudentApi.Api.Models;
 using StudentApi.Application.DTOs.Students;
 using StudentApi.Application.Services;
 
@@ -12,25 +13,25 @@ public static class StudentEndpoints
         group.MapGet("/", async (IStudentService service, CancellationToken ct) =>
         {
             var result = await service.GetAllAsync(ct);
-            return Results.Ok(result);
+            return Results.Ok(ApiResponse<IReadOnlyCollection<StudentResponse>>.Ok(result));
         });
 
         group.MapGet("/{id:guid}", async (Guid id, IStudentService service, CancellationToken ct) =>
         {
             var result = await service.GetByIdAsync(id, ct);
-            return Results.Ok(result);
+            return Results.Ok(ApiResponse<StudentResponse>.Ok(result));
         });
 
         group.MapPost("/", async (StudentCreateRequest request, IStudentService service, CancellationToken ct) =>
         {
             var result = await service.CreateAsync(request, ct);
-            return Results.Created($"/api/students/{result.Id}", result);
+            return Results.Created($"/api/students/{result.Id}", ApiResponse<StudentResponse>.Ok(result));
         });
 
         group.MapPut("/{id:guid}", async (Guid id, StudentUpdateRequest request, IStudentService service, CancellationToken ct) =>
         {
             var result = await service.UpdateAsync(id, request, ct);
-            return Results.Ok(result);
+            return Results.Ok(ApiResponse<StudentResponse>.Ok(result));
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IStudentService service, CancellationToken ct) =>
