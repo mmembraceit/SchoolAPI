@@ -1,0 +1,22 @@
+using FluentValidation;
+using StudentApi.Application.DTOs.Students;
+
+namespace StudentApi.Application.Validators.Students;
+
+public sealed class StudentUpdateRequestValidator : AbstractValidator<StudentUpdateRequest>
+{
+    public StudentUpdateRequestValidator()
+    {
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .WithMessage("Name is required.")
+            .MaximumLength(200)
+            .WithMessage("Name must not exceed 200 characters.");
+
+        RuleFor(x => x.DateOfBirth)
+            .NotEmpty()
+            .WithMessage("DateOfBirth is required.")
+            .LessThan(DateOnly.FromDateTime(DateTime.UtcNow))
+            .WithMessage("DateOfBirth must be in the past.");
+    }
+}
