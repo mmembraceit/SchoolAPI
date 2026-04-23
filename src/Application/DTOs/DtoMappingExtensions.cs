@@ -18,8 +18,8 @@ public static class DtoMappingExtensions
             model.Entity.UpdatedAt,
             model.Entity.IsDeleted);
 
-    public static StudentModel ToModel(this StudentCreateRequest request) =>
-        StudentModel.Create(request.TenantId, request.Name, request.DateOfBirth);
+    public static StudentModel ToModel(this StudentCreateRequest request, Guid tenantId) =>
+        StudentModel.Create(tenantId, request.Name, request.DateOfBirth);
 
     public static void ApplyTo(this StudentUpdateRequest request, StudentModel model)
     {

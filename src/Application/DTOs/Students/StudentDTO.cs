@@ -9,6 +9,6 @@ public sealed record StudentResponse(
     DateTimeOffset UpdatedAt,
     bool IsDeleted);
 
-public sealed record StudentCreateRequest(Guid TenantId, string Name, DateOnly DateOfBirth);
+public sealed record StudentCreateRequest(string Name, DateOnly DateOfBirth);
 
 public sealed record StudentUpdateRequest(string Name, DateOnly DateOfBirth);
