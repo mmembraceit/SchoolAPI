@@ -7,8 +7,9 @@ namespace StudentApi.Infrastructure.Data.Maps;
 public class UserEntityMap : BaseMap<UserEntity>
 {
     // Fixed GUIDs — must be stable so HasData never creates duplicates on re-migration
-    private static readonly Guid SeedTenantId = Guid.Parse("B0000000-0000-0000-0000-000000000002");
+    private static readonly Guid SeedTenantId = Guid.Parse("B0000000-0000-0000-0000-000000000000");
     private static readonly Guid SeedUserId   = Guid.Parse("A0000000-0000-0000-0000-000000000001");
+    private const string SeedPasswordHash = "$2a$11$UVl3rWdEfmTmln4zbBWlvugBMUOyV8vvlJhsuWIPVZQRk9SmnUc/O";
 
     public override void Configure(EntityTypeBuilder<UserEntity> entity)
     {
@@ -33,7 +34,7 @@ public class UserEntityMap : BaseMap<UserEntity>
             Id           = SeedUserId,
             TenantId     = SeedTenantId,
             Email        = "admin@embrace-it.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("embrace-it1234!"),
+            PasswordHash = SeedPasswordHash,
             CreatedAt    = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
             UpdatedAt    = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
         });
