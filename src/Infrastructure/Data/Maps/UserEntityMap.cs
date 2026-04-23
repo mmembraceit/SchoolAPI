@@ -6,10 +6,14 @@ namespace StudentApi.Infrastructure.Data.Maps;
 
 public class UserEntityMap : BaseMap<UserEntity>
 {
-    // Fixed GUIDs — must be stable so HasData never creates duplicates on re-migration
-    private static readonly Guid SeedTenantId = Guid.Parse("B0000000-0000-0000-0000-000000000000");
-    private static readonly Guid SeedUserId   = Guid.Parse("A0000000-0000-0000-0000-000000000001");
-    private const string SeedPasswordHash = "$2a$11$UVl3rWdEfmTmln4zbBWlvugBMUOyV8vvlJhsuWIPVZQRk9SmnUc/O";
+    private static class Seed
+    {
+        public static readonly Guid TenantId = Guid.Parse("B0000000-0000-0000-0000-000000000000");
+        public static readonly Guid UserId = Guid.Parse("A0000000-0000-0000-0000-000000000001");
+        public static readonly DateTimeOffset Timestamp = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        public const string AdminEmail = "admin@embrace-it.com";
+        public const string PasswordHash = "$2a$11$UVl3rWdEfmTmln4zbBWlvugBMUOyV8vvlJhsuWIPVZQRk9SmnUc/O";
+    }
 
     public override void Configure(EntityTypeBuilder<UserEntity> entity)
     {
@@ -29,14 +33,19 @@ public class UserEntityMap : BaseMap<UserEntity>
             .HasMaxLength(512)
             .IsRequired();
 
-        entity.HasData(new UserEntity
+        entity.HasData(CreateSeedAdminUser());
+    }
+
+    private static UserEntity CreateSeedAdminUser()
+    {
+        return new UserEntity
         {
-            Id           = SeedUserId,
-            TenantId     = SeedTenantId,
-            Email        = "admin@embrace-it.com",
-            PasswordHash = SeedPasswordHash,
-            CreatedAt    = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            UpdatedAt    = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
-        });
+            Id = Seed.UserId,
+            TenantId = Seed.TenantId,
+            Email = Seed.AdminEmail,
+            PasswordHash = Seed.PasswordHash,
+            CreatedAt = Seed.Timestamp,
+            UpdatedAt = Seed.Timestamp,
+        };
     }
 }
