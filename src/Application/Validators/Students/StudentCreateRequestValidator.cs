@@ -7,10 +7,6 @@ public sealed class StudentCreateRequestValidator : AbstractValidator<StudentCre
 {
     public StudentCreateRequestValidator()
     {
-        RuleFor(x => x.TenantId)
-            .NotEmpty()
-            .WithMessage("TenantId is required.");
-
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("Name is required.")
