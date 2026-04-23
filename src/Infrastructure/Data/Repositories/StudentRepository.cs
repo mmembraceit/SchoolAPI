@@ -7,19 +7,20 @@ namespace StudentApi.Infrastructure.Repositories;
 
 public class StudentRepository(StudentApiDbContext dbContext) : IStudentRepository
 {
-    public async Task<StudentModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<StudentModel?> GetByIdAsync(Guid id, Guid tenantId, CancellationToken cancellationToken)
     {
         var entity = await dbContext.Students
             .AsNoTracking()
-            .FirstOrDefaultAsync(student => student.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(s => s.Id == id && s.TenantId == tenantId, cancellationToken);
 
         return entity is null ? null : StudentModel.FromEntity(entity);
     }
 
-    public async Task<IReadOnlyList<StudentModel>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<StudentModel>> GetAllAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         var entities = await dbContext.Students
             .AsNoTracking()
+            .Where(s => s.TenantId == tenantId)
             .ToListAsync(cancellationToken);
 
         return entities.Select(StudentModel.FromEntity).ToList();
