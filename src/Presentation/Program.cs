@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using StudentApi.Api.Context;
 using StudentApi.Api.Endpoints;
 using StudentApi.Api.Middleware;
 using StudentApi.Api.Services;
 using StudentApi.Application;
+using StudentApi.Application.Context;
 using StudentApi.Application.Services;
 using StudentApi.Infrastructure;
 using StudentApi.Infrastructure.Data;
@@ -39,6 +41,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddScoped<TenantContext>();
+builder.Services.AddScoped<ITenantContext>(sp => sp.GetRequiredService<TenantContext>());
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
@@ -57,6 +61,7 @@ using (var scope = app.Services.CreateScope())
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<TenantContextMiddleware>();
 
 if (!app.Environment.IsEnvironment("Docker"))
     app.UseHttpsRedirection();
