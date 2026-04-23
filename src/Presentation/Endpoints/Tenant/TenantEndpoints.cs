@@ -37,7 +37,7 @@ public static class TenantEndpoints
         group.MapDelete("/{id:guid}", async (Guid id, ITenantService service, CancellationToken ct) =>
         {
             await service.DeleteAsync(id, ct);
-            return Results.NoContent();
+            return Results.Ok(ApiResponse<string>.Ok("Tenant deleted successfully."));
         });
 
         return app;
