@@ -15,7 +15,14 @@ internal sealed class GlobalExceptionHandlerMiddleware(
         }
         catch (ApiException ex)
         {
-            logger.LogWarning(ex, "Domain exception occurred: {ErrorCode}", ex.ErrorCode);
+            logger.LogWarning(
+                ex,
+                "Domain exception occurred. ErrorCode={ErrorCode} StatusCode={StatusCode} Method={Method} Path={Path} TraceId={TraceId}",
+                ex.ErrorCode,
+                (int)ex.StatusCode,
+                context.Request.Method,
+                context.Request.Path.Value,
+                context.TraceIdentifier);
 
             context.Response.StatusCode = (int)ex.StatusCode;
 
@@ -24,7 +31,12 @@ internal sealed class GlobalExceptionHandlerMiddleware(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unhandled exception occurred");
+            logger.LogError(
+                ex,
+                "Unhandled exception occurred. Method={Method} Path={Path} TraceId={TraceId}",
+                context.Request.Method,
+                context.Request.Path.Value,
+                context.TraceIdentifier);
 
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
