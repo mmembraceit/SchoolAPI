@@ -1,4 +1,5 @@
 using StudentApi.Api.Models;
+using StudentApi.Domain.ErrorCodes;
 using StudentApi.Domain.Exceptions;
 
 namespace StudentApi.Api.Middleware;
@@ -17,11 +18,13 @@ internal sealed class GlobalExceptionHandlerMiddleware(
         {
             logger.LogWarning(
                 ex,
-                "Domain exception occurred. ErrorCode={ErrorCode} StatusCode={StatusCode} Method={Method} Path={Path} TraceId={TraceId}",
+                "Domain exception occurred. ExceptionType={ExceptionType} ErrorCode={ErrorCode} HttpStatus={HttpStatus} Method={Method} Path={Path} TenantId={TenantId} TraceId={TraceId}",
+                ex.GetType().Name,
                 ex.ErrorCode,
                 (int)ex.StatusCode,
                 context.Request.Method,
                 context.Request.Path.Value,
+                GetTenantId(context),
                 context.TraceIdentifier);
 
             context.Response.StatusCode = (int)ex.StatusCode;
@@ -33,9 +36,13 @@ internal sealed class GlobalExceptionHandlerMiddleware(
         {
             logger.LogError(
                 ex,
-                "Unhandled exception occurred. Method={Method} Path={Path} TraceId={TraceId}",
+                "Unhandled exception occurred. ExceptionType={ExceptionType} ErrorCode={ErrorCode} HttpStatus={HttpStatus} Method={Method} Path={Path} TenantId={TenantId} TraceId={TraceId}",
+                ex.GetType().Name,
+                StudentApiErrorCodes.General.Unknown,
+                StatusCodes.Status500InternalServerError,
                 context.Request.Method,
                 context.Request.Path.Value,
+                GetTenantId(context),
                 context.TraceIdentifier);
 
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
@@ -43,5 +50,10 @@ internal sealed class GlobalExceptionHandlerMiddleware(
             await context.Response.WriteAsJsonAsync(
                 ApiResponse<object>.Fail("An unexpected error occurred."));
         }
+    }
+
+    private static string GetTenantId(HttpContext context)
+    {
+        return context.User.FindFirst("tenantId")?.Value ?? "n/a";
     }
 }
