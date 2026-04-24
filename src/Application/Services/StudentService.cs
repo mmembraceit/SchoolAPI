@@ -33,11 +33,6 @@ public class StudentService : IStudentService
 
     public async Task<StudentResponse> CreateAsync(StudentCreateRequest request, CancellationToken cancellationToken)
     {
-        if (await _repository.ExistsWithNameAsync(_tenantContext.TenantId, request.Name, cancellationToken))
-            throw new ConflictException(
-                StudentApiErrorCodes.Student.NameAlreadyExists,
-                $"A student with name '{request.Name}' already exists.");
-
         var model = request.ToModel(_tenantContext.TenantId);
         await _repository.AddAsync(model, cancellationToken);
         return model.ToResponse();
@@ -47,14 +42,6 @@ public class StudentService : IStudentService
     {
         var student = await _repository.GetByIdAsync(id, _tenantContext.TenantId, cancellationToken)
             ?? throw new NotFoundException(StudentApiErrorCodes.Student.NotFound, $"Student '{id}' was not found.");
-
-        if (!string.Equals(student.Entity.Name, request.Name, StringComparison.Ordinal)
-            && await _repository.ExistsWithNameAsync(_tenantContext.TenantId, request.Name, cancellationToken))
-        {
-            throw new ConflictException(
-                StudentApiErrorCodes.Student.NameAlreadyExists,
-                $"A student with name '{request.Name}' already exists.");
-        }
 
         request.ApplyTo(student);
         await _repository.UpdateAsync(student, cancellationToken);
