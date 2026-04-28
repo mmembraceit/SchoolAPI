@@ -1,8 +1,11 @@
+using Azure.Messaging.ServiceBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StudentApi.Application.Messaging;
 using StudentApi.Application.Repositories;
 using StudentApi.Infrastructure.Data;
+using StudentApi.Infrastructure.Messaging;
 using StudentApi.Infrastructure.Repositories;
 
 namespace StudentApi.Infrastructure;
@@ -20,6 +23,34 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IStudentRepository, StudentRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+
+        services.AddServiceBus(configuration);
+
+        return services;
+    }
+
+    private static IServiceCollection AddServiceBus(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<ServiceBusOptions>(options =>
+            configuration.GetSection(ServiceBusOptions.SectionName).Bind(options));
+
+        var connectionString = configuration
+            .GetSection(ServiceBusOptions.SectionName)["ConnectionString"];
+
+        // Only register the real Service Bus client when a connection string is configured.
+        // This allows the app to start locally without Azure.
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            // ServiceBusClient is thread-safe and should be registered as a singleton.
+            services.AddSingleton(new ServiceBusClient(connectionString));
+            services.AddScoped<IMessagePublisher, ServiceBusPublisher>();
+            services.AddHostedService<StudentEventProcessor>();
+        }
+        else
+        {
+            // Register a no-op publisher so DI resolves without errors when Service Bus is not configured.
+            services.AddScoped<IMessagePublisher, NullMessagePublisher>();
+        }
 
         return services;
     }
