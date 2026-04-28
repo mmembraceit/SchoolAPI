@@ -23,7 +23,11 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information));
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("Jwt:SecretKey configuration is missing.");
+var secretKey = jwtSettings["SecretKey"];
+
+if (string.IsNullOrWhiteSpace(secretKey))
+    throw new InvalidOperationException("Jwt:SecretKey configuration is missing or empty.");
+
 var key = Encoding.UTF8.GetBytes(secretKey);
 builder.Services.AddAuthentication(options =>
 {
