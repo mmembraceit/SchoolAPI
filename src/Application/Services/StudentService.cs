@@ -40,6 +40,14 @@ public class StudentService : IStudentService
 
     public async Task<StudentResponse> CreateAsync(StudentCreateRequest request, CancellationToken cancellationToken)
     {
+        var duplicate = await _repository.ExistsAsync(
+            request.Name, request.DateOfBirth, _tenantContext.TenantId, cancellationToken);
+
+        if (duplicate)
+            throw new ConflictException(
+                StudentApiErrorCodes.Student.AlreadyExists,
+                $"A student named '{request.Name}' with the same date of birth already exists.");
+
         var model = request.ToModel(_tenantContext.TenantId);
         await _repository.AddAsync(model, cancellationToken);
 
@@ -76,7 +84,7 @@ public class StudentService : IStudentService
         var student = await _repository.GetByIdAsync(id, _tenantContext.TenantId, cancellationToken)
             ?? throw new NotFoundException(StudentApiErrorCodes.Student.NotFound, $"Student '{id}' was not found.");
 
-        await _repository.DeleteAsync(student.Entity.Id, cancellationToken);
+        await _repository.DeleteAsync(student, cancellationToken);
 
         await _publisher.PublishAsync(new StudentDeletedEvent(
             StudentId: student.Entity.Id,
