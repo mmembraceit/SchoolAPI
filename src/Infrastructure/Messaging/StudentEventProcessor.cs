@@ -11,7 +11,7 @@ namespace StudentApi.Infrastructure.Messaging;
 /// Background service that processes student domain events arriving on
 /// the configured Azure Service Bus topic subscription.
 /// </summary>
-public sealed class StudentEventProcessor : BackgroundService
+public sealed class StudentEventProcessor : BackgroundService, IAsyncDisposable
 {
     private readonly ServiceBusClient _client;
     private readonly ServiceBusOptions _options;
@@ -146,12 +146,12 @@ public sealed class StudentEventProcessor : BackgroundService
         return Task.CompletedTask;
     }
 
-    public override async ValueTask DisposeAsync()
+    public new async ValueTask DisposeAsync()
     {
         if (_processor is not null)
             await _processor.DisposeAsync();
 
         await _client.DisposeAsync();
-        await base.DisposeAsync();
+        base.Dispose();
     }
 }
