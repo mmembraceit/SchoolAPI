@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<StudentApiDbContext>(options =>
             options.UseSqlServer(connectionString));
 
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IStudentRepository, StudentRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
