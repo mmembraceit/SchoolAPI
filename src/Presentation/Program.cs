@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using StudentApi.Api.Context;
 using StudentApi.Api.Endpoints;
+using StudentApi.Api.Hubs;
 using StudentApi.Api.Middleware;
 using StudentApi.Api.Services;
 using StudentApi.Application;
 using StudentApi.Application.Context;
+using StudentApi.Application.Hubs;
 using StudentApi.Application.Services;
 using StudentApi.Infrastructure;
 using StudentApi.Infrastructure.Data;
@@ -61,6 +63,7 @@ builder.Services.AddCors(options =>
 });
 
 // Services
+builder.Services.AddSignalR();
 builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
 builder.Services.AddApplication();
@@ -68,6 +71,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<TenantContext>();
 builder.Services.AddScoped<ITenantContext>(sp => sp.GetRequiredService<TenantContext>());
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IStudentHubContext, StudentHubContext>();
 
 var app = builder.Build();
 
@@ -119,5 +123,6 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapAuthEndpoints();
 app.MapStudentEndpoints();
 app.MapTenantEndpoints();
+app.MapHub<StudentHub>("/hubs/students");
 
 app.Run();

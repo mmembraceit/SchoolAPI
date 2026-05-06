@@ -1,6 +1,7 @@
 using NSubstitute;
 using StudentApi.Application.Context;
 using StudentApi.Application.DTOs.Students;
+using StudentApi.Application.Hubs;
 using StudentApi.Application.Messaging;
 using StudentApi.Application.Messaging.Events;
 using StudentApi.Application.Repositories;
@@ -15,6 +16,7 @@ public class StudentServiceTests
     private readonly IStudentRepository _repository = Substitute.For<IStudentRepository>();
     private readonly ITenantContext _tenantContext = Substitute.For<ITenantContext>();
     private readonly IMessagePublisher _publisher = Substitute.For<IMessagePublisher>();
+    private readonly IStudentHubContext _hub = Substitute.For<IStudentHubContext>();
     private readonly StudentService _sut;
 
     private static readonly Guid TenantId = Guid.NewGuid();
@@ -22,7 +24,7 @@ public class StudentServiceTests
     public StudentServiceTests()
     {
         _tenantContext.TenantId.Returns(TenantId);
-        _sut = new StudentService(_repository, _tenantContext, _publisher);
+        _sut = new StudentService(_repository, _tenantContext, _publisher, _hub);
     }
 
     // ── GetByIdAsync ─────────────────────────────────────────────────────────
@@ -77,6 +79,7 @@ public class StudentServiceTests
         Assert.Equal("Charlie", result.Name);
         await _repository.Received(1).AddAsync(Arg.Any<StudentModel>(), default);
         await _publisher.Received(1).PublishAsync(Arg.Any<StudentCreatedEvent>(), default);
+        await _hub.Received(1).NotifyStudentCreatedAsync(Arg.Any<StudentCreatedEvent>(), default);
     }
 
     [Fact]
@@ -105,6 +108,7 @@ public class StudentServiceTests
 
         await _repository.Received(1).UpdateAsync(model, default);
         await _publisher.Received(1).PublishAsync(Arg.Any<StudentUpdatedEvent>(), default);
+        await _hub.Received(1).NotifyStudentUpdatedAsync(Arg.Any<StudentUpdatedEvent>(), default);
     }
 
     [Fact]
@@ -129,6 +133,7 @@ public class StudentServiceTests
 
         await _repository.Received(1).DeleteAsync(model, default);
         await _publisher.Received(1).PublishAsync(Arg.Any<StudentDeletedEvent>(), default);
+        await _hub.Received(1).NotifyStudentDeletedAsync(Arg.Any<StudentDeletedEvent>(), default);
     }
 
     [Fact]

@@ -1,6 +1,7 @@
 using StudentApi.Application.Context;
 using StudentApi.Application.DTOs;
 using StudentApi.Application.DTOs.Students;
+using StudentApi.Application.Hubs;
 using StudentApi.Application.Messaging;
 using StudentApi.Application.Messaging.Events;
 using StudentApi.Application.Repositories;
@@ -14,15 +15,18 @@ public class StudentService : IStudentService
     private readonly IStudentRepository _repository;
     private readonly ITenantContext _tenantContext;
     private readonly IMessagePublisher _publisher;
+    private readonly IStudentHubContext _hub;
 
     public StudentService(
         IStudentRepository repository,
         ITenantContext tenantContext,
-        IMessagePublisher publisher)
+        IMessagePublisher publisher,
+        IStudentHubContext hub)
     {
         _repository = repository;
         _tenantContext = tenantContext;
         _publisher = publisher;
+        _hub = hub;
     }
 
     public async Task<StudentResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -51,12 +55,15 @@ public class StudentService : IStudentService
         var model = request.ToModel(_tenantContext.TenantId);
         await _repository.AddAsync(model, cancellationToken);
 
-        await _publisher.PublishAsync(new StudentCreatedEvent(
+        var createdEvent = new StudentCreatedEvent(
             StudentId:   model.Entity.Id,
             TenantId:    model.Entity.TenantId,
             Name:        model.Entity.Name,
             DateOfBirth: model.Entity.DateOfBirth,
-            CreatedAt:   model.Entity.CreatedAt), cancellationToken);
+            CreatedAt:   model.Entity.CreatedAt);
+
+        await _publisher.PublishAsync(createdEvent, cancellationToken);
+        await _hub.NotifyStudentCreatedAsync(createdEvent, cancellationToken);
 
         return model.ToResponse();
     }
@@ -69,12 +76,15 @@ public class StudentService : IStudentService
         request.ApplyTo(student);
         await _repository.UpdateAsync(student, cancellationToken);
 
-        await _publisher.PublishAsync(new StudentUpdatedEvent(
+        var updatedEvent = new StudentUpdatedEvent(
             StudentId:   student.Entity.Id,
             TenantId:    student.Entity.TenantId,
             Name:        student.Entity.Name,
             DateOfBirth: student.Entity.DateOfBirth,
-            UpdatedAt:   student.Entity.UpdatedAt), cancellationToken);
+            UpdatedAt:   student.Entity.UpdatedAt);
+
+        await _publisher.PublishAsync(updatedEvent, cancellationToken);
+        await _hub.NotifyStudentUpdatedAsync(updatedEvent, cancellationToken);
 
         return student.ToResponse();
     }
@@ -86,9 +96,12 @@ public class StudentService : IStudentService
 
         await _repository.DeleteAsync(student, cancellationToken);
 
-        await _publisher.PublishAsync(new StudentDeletedEvent(
+        var deletedEvent = new StudentDeletedEvent(
             StudentId: student.Entity.Id,
             TenantId:  student.Entity.TenantId,
-            DeletedAt: DateTimeOffset.UtcNow), cancellationToken);
+            DeletedAt: DateTimeOffset.UtcNow);
+
+        await _publisher.PublishAsync(deletedEvent, cancellationToken);
+        await _hub.NotifyStudentDeletedAsync(deletedEvent, cancellationToken);
     }
 }
