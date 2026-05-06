@@ -48,6 +48,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:4200"];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials());
+});
+
 // Services
 builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
@@ -71,6 +83,18 @@ if (app.Environment.IsDevelopment())
     db.Database.Migrate();
 }
 
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'");
+    if (!app.Environment.IsDevelopment())
+        context.Response.Headers.Append("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    await next();
+});
+
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseSerilogRequestLogging(options =>
 {
@@ -83,6 +107,7 @@ app.UseSerilogRequestLogging(options =>
         diagnosticContext.Set("TraceId", httpContext.TraceIdentifier);
     };
 });
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<TenantContextMiddleware>();
