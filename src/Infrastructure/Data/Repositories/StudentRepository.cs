@@ -11,7 +11,7 @@ public class StudentRepository(StudentApiDbContext dbContext) : IStudentReposito
     {
         var entity = await dbContext.Students
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id && s.TenantId == tenantId && !s.IsDeleted, cancellationToken);
+            .FirstOrDefaultAsync(s => s.Id == id && s.TenantId == tenantId, cancellationToken);
 
         return entity is null ? null : StudentModel.FromEntity(entity);
     }
@@ -20,11 +20,16 @@ public class StudentRepository(StudentApiDbContext dbContext) : IStudentReposito
     {
         var entities = await dbContext.Students
             .AsNoTracking()
-            .Where(s => s.TenantId == tenantId && !s.IsDeleted)
+            .Where(s => s.TenantId == tenantId)
             .ToListAsync(cancellationToken);
 
         return entities.Select(StudentModel.FromEntity).ToList();
     }
+
+    public Task<bool> ExistsAsync(string name, DateOnly dateOfBirth, Guid tenantId, CancellationToken cancellationToken)
+        => dbContext.Students.AnyAsync(
+            s => s.Name == name && s.DateOfBirth == dateOfBirth && s.TenantId == tenantId,
+            cancellationToken);
 
     public async Task AddAsync(StudentModel student, CancellationToken cancellationToken)
     {
@@ -38,15 +43,10 @@ public class StudentRepository(StudentApiDbContext dbContext) : IStudentReposito
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(StudentModel student, CancellationToken cancellationToken)
     {
-        var entity = await dbContext.Students.FirstOrDefaultAsync(student => student.Id == id, cancellationToken);
-        if (entity is null)
-        {
-            return;
-        }
-
-        entity.MarkAsDeleted();
+        student.Entity.MarkAsDeleted();
+        dbContext.Students.Update(student.Entity);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
