@@ -5,6 +5,7 @@ using StudentApi.Application.Hubs;
 using StudentApi.Application.Messaging;
 using StudentApi.Application.Messaging.Events;
 using StudentApi.Application.Repositories;
+using StudentApi.Application.Webhooks;
 using StudentApi.Domain.ErrorCodes;
 using StudentApi.Domain.Exceptions;
 
@@ -16,17 +17,20 @@ public class StudentService : IStudentService
     private readonly ITenantContext _tenantContext;
     private readonly IMessagePublisher _publisher;
     private readonly IStudentHubContext _hub;
+    private readonly IWebhookDispatcher _webhooks;
 
     public StudentService(
         IStudentRepository repository,
         ITenantContext tenantContext,
         IMessagePublisher publisher,
-        IStudentHubContext hub)
+        IStudentHubContext hub,
+        IWebhookDispatcher webhooks)
     {
         _repository = repository;
         _tenantContext = tenantContext;
         _publisher = publisher;
         _hub = hub;
+        _webhooks = webhooks;
     }
 
     public async Task<StudentResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -64,6 +68,7 @@ public class StudentService : IStudentService
 
         await _publisher.PublishAsync(createdEvent, cancellationToken);
         await _hub.NotifyStudentCreatedAsync(createdEvent, cancellationToken);
+        await _webhooks.DispatchAsync(createdEvent, cancellationToken);
 
         return model.ToResponse();
     }
@@ -85,6 +90,7 @@ public class StudentService : IStudentService
 
         await _publisher.PublishAsync(updatedEvent, cancellationToken);
         await _hub.NotifyStudentUpdatedAsync(updatedEvent, cancellationToken);
+        await _webhooks.DispatchAsync(updatedEvent, cancellationToken);
 
         return student.ToResponse();
     }
@@ -103,5 +109,6 @@ public class StudentService : IStudentService
 
         await _publisher.PublishAsync(deletedEvent, cancellationToken);
         await _hub.NotifyStudentDeletedAsync(deletedEvent, cancellationToken);
+        await _webhooks.DispatchAsync(deletedEvent, cancellationToken);
     }
 }

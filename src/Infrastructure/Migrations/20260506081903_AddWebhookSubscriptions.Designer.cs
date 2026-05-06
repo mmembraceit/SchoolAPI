@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentApi.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using StudentApi.Infrastructure.Data;
 namespace StudentApi.Infrastructure.Migrations
 {
     [DbContext(typeof(StudentApiDbContext))]
-    partial class StudentApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260506081903_AddWebhookSubscriptions")]
+    partial class AddWebhookSubscriptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

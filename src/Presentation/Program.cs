@@ -123,6 +123,7 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapAuthEndpoints();
 app.MapStudentEndpoints();
 app.MapTenantEndpoints();
+app.MapWebhookEndpoints();
 app.MapHub<StudentHub>("/hubs/students");
 
 app.Run();

@@ -4,9 +4,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StudentApi.Application.Messaging;
 using StudentApi.Application.Repositories;
+using StudentApi.Application.Webhooks;
 using StudentApi.Infrastructure.Data;
 using StudentApi.Infrastructure.Messaging;
 using StudentApi.Infrastructure.Repositories;
+using StudentApi.Infrastructure.Webhooks;
 
 namespace StudentApi.Infrastructure;
 
@@ -24,6 +26,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IStudentRepository, StudentRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IWebhookSubscriptionRepository, WebhookSubscriptionRepository>();
+
+        services.AddHttpClient<IWebhookDispatcher, WebhookDispatcher>();
 
         services.AddServiceBus(configuration);
 
