@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using StudentApi.Application.Messaging;
 using StudentApi.Application.Repositories;
 using StudentApi.Application.Webhooks;
+using StudentApi.Infrastructure.Cache;
 using StudentApi.Infrastructure.Data;
 using StudentApi.Infrastructure.Messaging;
 using StudentApi.Infrastructure.Repositories;
@@ -23,14 +24,40 @@ public static class ServiceCollectionExtensions
             options.UseSqlServer(connectionString));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IStudentRepository, StudentRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IWebhookSubscriptionRepository, WebhookSubscriptionRepository>();
 
         services.AddHttpClient<IWebhookDispatcher, WebhookDispatcher>();
 
+        services.AddCache(configuration);
         services.AddServiceBus(configuration);
+
+        return services;
+    }
+
+    private static IServiceCollection AddCache(this IServiceCollection services, IConfiguration configuration)
+    {
+        var redisConnectionString = configuration.GetConnectionString("Redis");
+
+        if (!string.IsNullOrWhiteSpace(redisConnectionString))
+        {
+            services.AddStackExchangeRedisCache(options =>
+                options.Configuration = redisConnectionString);
+        }
+        else
+        {
+            // Fall back to in-memory distributed cache for local dev without Redis.
+            services.AddDistributedMemoryCache();
+        }
+
+        // Always register the raw repository, then wrap it with the caching decorator.
+        services.AddScoped<StudentRepository>();
+        services.AddScoped<IStudentRepository>(sp =>
+            new CachedStudentRepository(
+                sp.GetRequiredService<StudentRepository>(),
+                sp.GetRequiredService<Microsoft.Extensions.Caching.Distributed.IDistributedCache>(),
+                sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<CachedStudentRepository>>()));
 
         return services;
     }
