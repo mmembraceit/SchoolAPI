@@ -4,6 +4,7 @@ public static partial class StudentApiErrorCodes
 {
     public static class Student
     {
-        public const string NotFound = "error.student.not_found";
+        public const string NotFound      = "error.student.not_found";
+        public const string AlreadyExists = "error.student.already_exists";
     }
 }
