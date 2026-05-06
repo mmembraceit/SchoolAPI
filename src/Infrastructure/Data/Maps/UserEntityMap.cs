@@ -6,9 +6,18 @@ namespace StudentApi.Infrastructure.Data.Maps;
 
 public class UserEntityMap : BaseMap<UserEntity>
 {
-    private static readonly Guid SeedTenantId = Guid.Parse("B0000000-0000-0000-0000-000000000000");
-    private static readonly Guid SeedUserId   = Guid.Parse("A0000000-0000-0000-0000-000000000001");
+    private static readonly Guid TenantOms       = Guid.Parse("B0000000-0000-0000-0000-000000000000");
+    private static readonly Guid TenantAcl       = Guid.Parse("B0000000-0000-0000-0000-000000000001");
+    private static readonly Guid TenantEmbraceIt = Guid.Parse("B0000000-0000-0000-0000-000000000002");
+
+    private static readonly Guid SeedUserId  = Guid.Parse("A0000000-0000-0000-0000-000000000001");
+    private static readonly Guid SeedUserId2 = Guid.Parse("A0000000-0000-0000-0000-000000000002");
+    private static readonly Guid SeedUserId3 = Guid.Parse("A0000000-0000-0000-0000-000000000003");
+
+    // All seed users share the same password: Admin@2026
     private const string SeedPasswordHash = "$2a$11$UVl3rWdEfmTmln4zbBWlvugBMUOyV8vvlJhsuWIPVZQRk9SmnUc/O";
+
+    private static readonly DateTimeOffset SeedDate = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
     public override void Configure(EntityTypeBuilder<UserEntity> entity)
     {
@@ -33,15 +42,36 @@ public class UserEntityMap : BaseMap<UserEntity>
             .IsRequired()
             .HasDefaultValue("user");
 
-        entity.HasData(new UserEntity
-        {
-            Id           = SeedUserId,
-            TenantId     = SeedTenantId,
-            Email        = "admin@embrace-it.com",
-            PasswordHash = SeedPasswordHash,
-            Role         = "admin",
-            CreatedAt    = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            UpdatedAt    = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
-        });
+        entity.HasData(
+            new UserEntity
+            {
+                Id           = SeedUserId,
+                TenantId     = TenantOms,
+                Email        = "admin@oms-ltd.com",
+                PasswordHash = SeedPasswordHash,
+                Role         = "admin",
+                CreatedAt    = SeedDate,
+                UpdatedAt    = SeedDate,
+            },
+            new UserEntity
+            {
+                Id           = SeedUserId2,
+                TenantId     = TenantAcl,
+                Email        = "admin@acl-inc.com",
+                PasswordHash = SeedPasswordHash,
+                Role         = "admin",
+                CreatedAt    = SeedDate,
+                UpdatedAt    = SeedDate,
+            },
+            new UserEntity
+            {
+                Id           = SeedUserId3,
+                TenantId     = TenantEmbraceIt,
+                Email        = "admin@embrace-it.com",
+                PasswordHash = SeedPasswordHash,
+                Role         = "admin",
+                CreatedAt    = SeedDate,
+                UpdatedAt    = SeedDate,
+            });
     }
 }
