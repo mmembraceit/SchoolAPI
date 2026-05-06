@@ -5,8 +5,8 @@ using StudentApi.Application.Messaging.Events;
 namespace StudentApi.Infrastructure.Messaging;
 
 /// <summary>
-/// No-op publisher used when Azure Service Bus is not configured (e.g. local dev without Azure).
-/// Logs a warning so developers are aware that events are not being published.
+/// No-op publisher because Azure Service Bus is not configured 
+/// Logs a warning - events are not being published.
 /// </summary>
 internal sealed class NullMessagePublisher : IMessagePublisher
 {

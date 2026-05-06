@@ -17,7 +17,7 @@ public static class AuthEndpoints
             if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 return Results.Unauthorized();
 
-            var token = tokenService.GenerateToken(user.TenantId, user.Id);
+            var token = tokenService.GenerateToken(user.TenantId, user.Id, user.Role);
             return Results.Ok(ApiResponse<TokenResponse>.Ok(new TokenResponse(token)));
         });
 

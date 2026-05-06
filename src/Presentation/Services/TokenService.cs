@@ -8,7 +8,7 @@ namespace StudentApi.Api.Services;
 
 internal sealed class TokenService(IConfiguration config) : ITokenService
 {
-    public string GenerateToken(Guid tenantId, Guid userId)
+    public string GenerateToken(Guid tenantId, Guid userId, string role)
     {
         var jwtSettings = config.GetSection("Jwt");
         var key = new SymmetricSecurityKey(
@@ -18,7 +18,8 @@ internal sealed class TokenService(IConfiguration config) : ITokenService
         {
             new Claim(JwtRegisteredClaimNames.Sub,  userId.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti,  Guid.NewGuid().ToString()),
-            new Claim("tenantId",                   tenantId.ToString())
+            new Claim("tenantId",                   tenantId.ToString()),
+            new Claim(ClaimTypes.Role,              role)
         };
 
         var token = new JwtSecurityToken(

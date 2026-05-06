@@ -10,9 +10,6 @@ namespace StudentApi.Infrastructure.Messaging;
 /// <summary>
 /// Background service that processes student domain events arriving on
 /// the configured Azure Service Bus topic subscription.
-///
-/// Extend the <see cref="HandleAsync"/> method to add your business logic
-/// (e.g. sync data to a read model, trigger notifications, etc.).
 /// </summary>
 public sealed class StudentEventProcessor : BackgroundService
 {
@@ -94,7 +91,6 @@ public sealed class StudentEventProcessor : BackgroundService
 
     /// <summary>
     /// Dispatches to a typed handler based on the message Subject.
-    /// Add your domain logic here or delegate to a handler registered in DI.
     /// </summary>
     private Task HandleAsync(string subject, ServiceBusReceivedMessage message, CancellationToken ct)
     {
@@ -115,10 +111,8 @@ public sealed class StudentEventProcessor : BackgroundService
         };
     }
 
-    // -----------------------------------------------------------------------
-    // Handlers — replace the log statements with your actual business logic.
-    // -----------------------------------------------------------------------
 
+    // Handlers — replace the log statements with actual business logic.
     private Task HandleStudentCreatedAsync(StudentCreatedEvent @event, CancellationToken ct)
     {
         _logger.LogInformation(
@@ -152,10 +146,12 @@ public sealed class StudentEventProcessor : BackgroundService
         return Task.CompletedTask;
     }
 
-    public override void Dispose()
+    public override async ValueTask DisposeAsync()
     {
-        _processor?.DisposeAsync().AsTask().GetAwaiter().GetResult();
-        _client.DisposeAsync().AsTask().GetAwaiter().GetResult();
-        base.Dispose();
+        if (_processor is not null)
+            await _processor.DisposeAsync();
+
+        await _client.DisposeAsync();
+        await base.DisposeAsync();
     }
 }

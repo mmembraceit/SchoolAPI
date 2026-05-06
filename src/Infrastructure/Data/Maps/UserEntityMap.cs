@@ -28,12 +28,18 @@ public class UserEntityMap : BaseMap<UserEntity>
             .HasMaxLength(512)
             .IsRequired();
 
+        entity.Property(e => e.Role)
+            .HasMaxLength(50)
+            .IsRequired()
+            .HasDefaultValue("user");
+
         entity.HasData(new UserEntity
         {
             Id           = SeedUserId,
             TenantId     = SeedTenantId,
             Email        = "admin@embrace-it.com",
             PasswordHash = SeedPasswordHash,
+            Role         = "admin",
             CreatedAt    = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
             UpdatedAt    = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
         });

@@ -11,7 +11,7 @@ public class StudentRepository(StudentApiDbContext dbContext) : IStudentReposito
     {
         var entity = await dbContext.Students
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id && s.TenantId == tenantId, cancellationToken);
+            .FirstOrDefaultAsync(s => s.Id == id && s.TenantId == tenantId && !s.IsDeleted, cancellationToken);
 
         return entity is null ? null : StudentModel.FromEntity(entity);
     }
@@ -20,7 +20,7 @@ public class StudentRepository(StudentApiDbContext dbContext) : IStudentReposito
     {
         var entities = await dbContext.Students
             .AsNoTracking()
-            .Where(s => s.TenantId == tenantId)
+            .Where(s => s.TenantId == tenantId && !s.IsDeleted)
             .ToListAsync(cancellationToken);
 
         return entities.Select(StudentModel.FromEntity).ToList();
