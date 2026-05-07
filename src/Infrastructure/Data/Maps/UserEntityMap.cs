@@ -15,7 +15,7 @@ public class UserEntityMap : BaseMap<UserEntity>
     private static readonly Guid SeedUserId3 = Guid.Parse("A0000000-0000-0000-0000-000000000003");
 
     // All seed users share the same password: Admin@2026
-    private const string SeedPasswordHash = "$2a$11$UVl3rWdEfmTmln4zbBWlvugBMUOyV8vvlJhsuWIPVZQRk9SmnUc/O";
+    private const string SeedPasswordHash = "$2a$11$CLq2MdG.BRilFcjK6xbGreGxgh7QZLHQxArAkKOLjPbL2Qt86mdbe";
 
     private static readonly DateTimeOffset SeedDate = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 

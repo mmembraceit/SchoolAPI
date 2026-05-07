@@ -26,10 +26,5 @@ public class StudentApiDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
-        modelBuilder.Entity<StudentEntity>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<TenantEntity>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<UserEntity>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<WebhookSubscriptionEntity>().HasQueryFilter(e => !e.IsDeleted);
     }
 }

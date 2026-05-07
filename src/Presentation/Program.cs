@@ -127,3 +127,5 @@ app.MapWebhookEndpoints();
 app.MapHub<StudentHub>("/hubs/students");
 
 app.Run();
+
+public partial class Program;  // exposes the implicit class for WebApplicationFactory
